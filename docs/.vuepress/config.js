@@ -5,6 +5,9 @@ module.exports = {
     head: [
         ['link', { rel: 'icon', href: '/images/favicon.ico' }],
     ],
+    markdown: {
+        lineNumbers: true
+    },
     themeConfig: {
         nav: [
             { text: '主页', link: '/' },
@@ -21,14 +24,14 @@ module.exports = {
         ],
         sidebar: [
             {
-            title: 'JavaScript 学习',
-            collapsable: false,
-            children: [
-              '/javascript/eventLoop',
-            ]
-          },
+                title: 'JavaScript 学习',
+                collapsable: false,
+                children: [
+                    '/javascript/eventLoop',
+                ]
+            },
         ]
-        
+
     },
-   
+
 }
