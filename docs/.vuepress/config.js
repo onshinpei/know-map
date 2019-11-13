@@ -2,6 +2,7 @@ module.exports = {
     title: '前端知识地图',
     description: '一些零零碎碎的学习日志',
     port: 8090,
+    dest: 'dist',
     head: [
         ['link', { rel: 'icon', href: '/images/favicon.ico' }],
     ],
@@ -24,10 +25,11 @@ module.exports = {
         ],
         sidebar: [
             {
-                title: 'JavaScript 学习',
+                title: '基础知识',
                 collapsable: false,
                 children: [
                     '/javascript/eventLoop',
+                    '/javascript/mvvm'
                 ]
             },
         ]
