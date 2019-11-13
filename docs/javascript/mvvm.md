@@ -110,3 +110,151 @@ class Observer {
 ![演示1](../images/mvvm/3.gif)
 
 由图中可知，当我们获取值得时候就可以调用`get`方法，当我们设置值得时候就可以调用`set`方法。所以当我们从编译模板渲染数据时（类似于`{{message}}`）会调用我们的`get`方法，我们就可以知道哪些地方使用了该数据, 下面我们就来实现编译魔板的方法 `Compile`
+
+### 1、解析根节点内的 Dom 结构
+
+这里我们使用文档碎片，比真实的DOM快
+
+``` js
+class Compile {
+    constructor(el, vm) {
+        // 获取DOM节点
+        this.el = this.isElementNode(el) ? el : document.querySelector(el);
+        this.vm = vm
+
+        if (this.el) {
+            // 1、把这些真实的 Dom 移动到内存中，即 fragment（文档碎片）
+            let frament = this.node2fragment(this.el);
+        }
+    }
+    // 判断是否是元素节点
+    isElementNode(node) {
+        return node.nodeType === 1
+    }
+
+    node2fragment(el) {
+        // 创建文档碎片
+        let frament = documennt.createDocumentFragmen()
+
+        // 第一个子节点
+        let firstChild
+        while (firstChild = el.firstChild) {
+            frament.appendChild(firstChild)
+        }
+
+        return frament
+    }
+}
+
+```
+
+上面的模板编译的过程中，前提条件是必须存在根节点，传入的根元素可以使一个真实的`DOM`，也可以是一个`CSS`选择器，我们利用`isElementNode`方法去判断节点是否是元素(`element`)节点，如果不是则获取节点，然后赋值给`this.el`属性中
+
+解析模板的过程中为了提高性能，我们应取出根节点内的子节点存放在文档碎片中（内存），需要注意的是将一个 Dom 节点内的子节点存入文档碎片的过程中，会在原来的`DOM`容器中删除这个节点，所以在遍历根节点的子节点时，永远是将第一个节点取出存入文档碎片，直到节点不存在为止。
+
+### 2、编译文档碎片中的结构
+
+在Vue中模板编译主要是以下两部分：
+
+- 元素节点中的指令（比如`v-model`)
+- 文本中的双大括号`{{}}`（`Mustache`语法）
+
+我们开始解析这些指令和双大括号，在Compile中增加compile方法,首先我们来实现v-model指令的编译
+
+``` js {32-95}
+class Compile {
+    constructor(el, vm) {
+        // 获取DOM节点
+        this.el = this.isElementNode(el) ? el : document.querySelector(el);
+        this.vm = vm
+
+        if (this.el) {
+            // 1、把这些真实的 Dom 移动到内存中，即 fragment（文档碎片）
+            let frament = this.node2fragment(this.el);
+            this.compile(frament)
+            this.el.appendChild(frament)
+        }
+    }
+    // 判断是否是元素节点
+    isElementNode(node) {
+        return node.nodeType === 1
+    }
+
+    node2fragment(el) {
+        // 创建文档碎片
+        let frament = document.createDocumentFragment()
+
+        // 第一个子节点
+        let firstChild
+        while (firstChild = el.firstChild) {
+            frament.appendChild(firstChild)
+        }
+
+        return frament
+    }
+
+    /************** 新增代码 ******************/
+    // 解析文档碎片
+    // 判断属性是否为指令
+    isDirective(name) {
+        return name.includes("v-")
+    }
+
+    compile(fragment) {
+        // 获取子节点
+        let childNodes = fragment.childNodes
+
+        childNodes.forEach(node => {
+            if (this.isElementNode(node)) { // 元素节点
+
+                this.compileElement(node)
+            } else {
+                // todo
+            }
+        })
+    }
+
+    compileElement(node) {
+        let attrs = node.attributes
+        Array.from(attrs).forEach(attr => {
+            // 获取属性名，判断属性是否为指令，即含 v-
+            let attrName = attr.name
+
+            if (this.isDirective(attrName)) {
+                // 如果是指令，取到该属性值得变量在 data 中对应得值，替换到节点中
+                let exp = attr.value
+                let type = attrName.slice(2)
+
+                // 调用指令对应的方法
+                CompileUtil[type](node, this.vm, exp)
+            }
+        })
+    }
+}
+
+const CompileUtil = {
+    getVal(vm, exp) {
+        exp = exp.split('.')
+        let value = exp.reduce((prev, next) => {
+            return prev[next]
+        }, vm.$data)
+        return value
+    },
+    // 暂时我们只实现model指令
+    model(node, vm, exp) {
+        let updateFn = this.updater.modelUpdater
+
+         // 获取 data 中对应的变量的值
+        let value = this.getVal(vm, exp);
+        updateFn && updateFn(node, value)
+    },
+
+    updater: {
+        modelUpdater(node, value) {
+            node.value = value
+        }
+    }
+}
+
+
+```
