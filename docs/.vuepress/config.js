@@ -70,7 +70,8 @@ module.exports = {
                 collapsable: false,
                 children: [
                     '/javascript/eventLoop',
-                    '/javascript/mvvm'
+                    '/javascript/mvvm',
+                    'javascript/frontendOptimization'
                 ]
             },
         ]
