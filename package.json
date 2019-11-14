@@ -10,6 +10,8 @@
   "main": "index.js",
   "devDependencies": {
     "cross-env": "^6.0.3",
+    "file-loader": "^4.2.0",
+    "image-webpack-loader": "^6.0.0",
     "vuepress": "^1.2.0"
   },
   "author": "",
