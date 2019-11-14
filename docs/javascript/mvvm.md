@@ -44,6 +44,8 @@ class MVVM {
 
 接下来我们来实现对数据的劫持类Observer，在同级目录下新建observer.js
 
+## 1、数据劫持类Observer的实现
+
 ```js
 class Observer {
     constructor(data) {
@@ -111,9 +113,9 @@ class Observer {
 
 由图中可知，当我们获取值得时候就可以调用`get`方法，当我们设置值得时候就可以调用`set`方法。所以当我们从编译模板渲染数据时（类似于`{{message}}`）会调用我们的`get`方法，我们就可以知道哪些地方使用了该数据, 下面我们就来实现编译魔板的方法 `Compile`
 
-### 1、解析根节点内的 Dom 结构
+## 2、Compile编译类的实现
 
-这里我们使用文档碎片，比真实的DOM快
+解析根节点内的 Dom 结构，这里我们使用文档碎片，比真实的DOM快
 
 ``` js
 class Compile {
@@ -328,7 +330,7 @@ let CompileUtil = {
 ![reactive1](../images/mvvm/4.gif)
 我们可以看到，数据可以渲染，但是并数据输入并不会改变下面的显示，这是因为我们还并没有实现依赖的收集，我们在编译的时候增加一个Wathcer,新增一个watcher类
 
-## 观察者Watcher类的实现
+## 3、观察者Watcher类的实现
 
 在 CompileUtil 对象的方法中创建 Watcher 实例的时候传入了三个参数，即 MVVM 的实例、模板绑定数据的变量名 exp 和一个 callback，这个 callback 内部逻辑是为了更新数据到 Dom，所以我们的 Watcher 类内部要做的事情就清晰了，获取更改前的值存储起来，并创建一个 update 实例方法，在值被更改时去执行实例的 callback 以达到视图的更新。
 
@@ -537,3 +539,7 @@ let CompileUtil = {
 ### 总结
 
 通过上面的测试，相信应该理解了 MVVM 模式对于前端开发重大的意义，实现了双向数据绑定，实时保证 View 层与 Model 层的数据同步，并可以让我们在开发时基于数据编程，而最少的操作 Dom，这样大大提高了页面渲染的性能，也可以使我们把更多的精力用于业务逻辑的开发上。
+
+::: tip 代码地址
+[github](https://github.com/onshinpei/know-map/tree/master/example/mvvm)
+:::
