@@ -1,12 +1,12 @@
-console.log(process.env.NODE_ENV)
+const NODE_ENV = process.env.NODE_ENV
 module.exports = {
     title: '前端知识地图',
     description: '一些零零碎碎的学习日志',
     port: 8090,
     dest: 'dist',
-    base: process.env.NODE_ENV === 'production' ? '/docs/' : '/',
+    base: NODE_ENV === 'production' ? '/docs/' : '/',
     head: [
-        ['link', { rel: 'icon', href: '/images/favicon.ico' }],
+        ['link', { rel: 'icon', href: `${NODE_ENV === 'production' ? 'docs': ''}/images/favicon.ico` }],
     ],
     chainWebpack: config => {
         config.module
