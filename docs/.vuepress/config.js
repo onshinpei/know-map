@@ -6,35 +6,45 @@ module.exports = {
     head: [
         ['link', { rel: 'icon', href: '/images/favicon.ico' }],
     ],
-    configureWebpack: (config, isServer) => {
-        if (!isServer) {
-            return {
-                module: {
-                    rules: [
-                        {
-                            test: /\.(gif|png|jpe?g|svg)$/i,
-                            use: [
-                                {
-                                    loader: 'file-loader',
-                                    options: {
-                                        name: '[name].[ext]',
-                                        outputPath: 'images/'
-                                    }
-                                },
-                                {
-                                    loader: 'image-webpack-loader',
-                                    options: {
-                                        bypassOnDebug: true,
-                                    }
-                                }
-                            ]
-                        },
-                    ]
-                }
-            }
-
-        }
+    chainWebpack: config => {
+        config.module
+            .rule('images')
+            .use('image-webpack-loader')
+            .loader('image-webpack-loader')
+            .options({
+                bypassOnDebug: true
+            })
+            .end()
     },
+    // configureWebpack: (config, isServer) => {
+    //     if (!isServer) {
+    //         return {
+    //             module: {
+    //                 rules: [
+    //                     {
+    //                         test: /\.(gif|png|jpe?g|svg)$/i,
+    //                         use: [
+    //                             {
+    //                                 loader: 'file-loader',
+    //                                 options: {
+    //                                     name: '[name].[hash].[ext]',
+    //                                     outputPath: 'assets/img'
+    //                                 }
+    //                             },
+    //                             // {
+    //                             //     loader: 'image-webpack-loader',
+    //                             //     options: {
+    //                             //         bypassOnDebug: true,
+    //                             //     }
+    //                             // }
+    //                         ]
+    //                     },
+    //                 ]
+    //             }
+    //         }
+
+    //     }
+    // },
     markdown: {
         lineNumbers: true
     },
