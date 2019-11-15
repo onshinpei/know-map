@@ -8,7 +8,7 @@
 
 值得一提的是,GUI 开发依然有一个共同的特殊之处,那就是`体验性能`,体验性能并不指在绝对性能上的性能优化,而是回归用户体验这个根本目的,因为在 GUI 开发的领域,绝大多数情况下追求绝对意义上的性能是没有意义的.
 
-比如一个动画本来就已经有`6` 帧了,你通过一个吊炸天的算法优化到了`120`帧,这对于你的 KPI 毫无用处,因为这个优化本身没有意义,因为除了少数特异功能的异人,没有人能分得清`60`帧和`120`帧的区别,这对于用户的体验没有任何提升,相反,一个首屏加载需要 4s 的网站,你没有任何实质意义上的性能优化,只是加了一个设计姐姐设计的`loading`图,那这也是十分有意义的优化,因为好的 loading 可以减少用户焦虑,让用户感觉没有等太久,这就是用户体验级的性能优化.
+比如一个动画本来就已经有`60`帧了,你通过一个吊炸天的算法优化到了`120`帧,这对于你的 KPI 毫无用处,因为这个优化本身没有意义,因为除了少数特异功能的异人,没有人能分得清`60`帧和`120`帧的区别,这对于用户的体验没有任何提升,相反,一个首屏加载需要 4s 的网站,你没有任何实质意义上的性能优化,只是加了一个设计姐姐设计的`loading`图,那这也是十分有意义的优化,因为好的 loading 可以减少用户焦虑,让用户感觉没有等太久,这就是用户体验级的性能优化.
 
 说到性能优化，可能第一印象就觉得这只是前端的事情，其实这不仅仅是前端的工作，后端也是紧密相连，大家应该知道著名的**雅虎军规**，那么我们就结合这些军规谈谈性能优化的那点事
 
@@ -111,8 +111,14 @@ nginx开启GZIP后
 
 - 静态资源走不同域名
 - 开启http2
+- preload 与 prefetch
+- DNS预解析
+
+### 静态资源走不同域名
 
 在非http2中，由于浏览器限制，同一个域名TCP链接的数量有限，所有当该域名的请求值到达最大值时，将无法建立新的链接，必须等待前面的请求完成，所有当放在不同的域名下时，这个问题就迎刃而解了
+
+### HTTP2
 
 说到http2,我就来普及下http2了
 
@@ -141,9 +147,136 @@ HTTP2.0可以说是SPDY的升级版（其实原本也是基于SPDY设计的）�
 nginx[升级支持http2](https://www.cnblogs.com/bugutian/p/6628455.html)
 :::
 
-## 缓存
+### preload 与 prefetch
+
+使用Vue的同学应该见过编译后的html源码，类似于这样：
+
+``` html
+<head>
+    <link rel="preload" href="/assets/css/0.styles.6114eb0d.css" as="style">
+    <link rel="preload" href="/assets/js/app.e0945875.js" as="script">
+    <link rel="preload" href="/assets/js/2.f8debb05.js" as="script">
+    <link rel="preload" href="/assets/js/5.1e6bffbf.js" as="script">
+    <link rel="prefetch" href="/assets/js/3.65b54b1c.js">
+    <link rel="prefetch" href="/assets/js/4.a6222231.js">
+    <link rel="prefetch" href="/assets/js/6.acab13f7.js">
+    <link rel="prefetch" href="/assets/js/7.8e43dd1f.js">
+    <link rel="prefetch" href="/assets/js/8.a7f0db97.js">
+    <link rel="prefetch" href="/assets/js/9.6613c730.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.6114eb0d.css">
+</head>
+```
+
+::: tip preload与prefech:
+**preload**：`<link>`元素的`rel`属性的属性值`preload`能够让你在你的HTML页面中`<head>`元素内部书写一些声明式的资源获取请求，可以指明哪些资源是在页面加载完成后即刻需要的。对于这种即刻需要的资源，你可能希望在页面加载的生命周期的早期阶段就开始获取，在浏览器的主渲染机制介入前就进行预加载。这一机制使得资源可以更早的得到加载并可用，且更不易阻塞页面的初步渲染，进而提升性能
+
+**prefetch**：它的作用是告诉浏览器加载下一页面可能会用到的资源，注意，是下一页面，而不是当前页面。因此该方法的加载优先级非常低，也就是说该方式的作用是加速下一个页面的加载速度
+
+更多信息，可以通过以下了解：
+
+- [MDN preload](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Preloading_content)
+- [preload有什么好处](http://www.alloyteam.com/2016/05/preload-what-is-it-good-for-part1/)
+:::
+
+> `preload`是告诉浏览器页面必定需要的资源，浏览器一定会加载这些资源
+>
+> `prefetch`是告诉浏览器页面可能需要的资源，浏览器不一定会加载这些资源
+
+所以，对于当前页面很有必要的资源使用`preload`，对于可能在将来的页面中使用的资源使用`prefetch`, 不这两个在一些低版本还不支持
+
+### DNS预解析
+
+在前端优化中与 DNS 的有关一般有两点： 一个是减少DNS的请求次数，另一个就是进行DNS预获取。DNS作为互联网的基础协议，往往容易被网站优化人员忽略。
+
+>DNS全称为`Domain Name System`，即域名系统，是域名和IP地址相互映射的一个分布式数据库。
+域名解析即通过主机名，最终得到该主机名对应的IP地址的过程。
+浏览器对网站第一次的域名DNS解析查找流程依次为：
+浏览器缓存 - 系统缓存 - 路由器缓存 - ISP DNS缓存 - 递归搜索
+
+DNS请求需要的带宽非常小，但是延迟却有点高，这点在手机网络上特别明显，而一次典型的DNS解析一般需要20-200ms，所以DNS预解析可以让延迟明显减少一些。
+在某些浏览器中这个预读取的行为将会与页面实际内容并行发生（而不是串行）。正因如此，某些高延迟的域名的解析过程才不会卡住资源的加载。
+这样可以极大的加速（尤其是移动网络环境下）页面的加载。在某些图片较多的页面中，在发起图片加载请求之前预先把域名解析好将会有至少 5% 的图片加载速度提升。
+
+`X-DNS-Prefetch-Control`头控制着浏览器的DNS预解析功能
+`X-DNS-prefetch-Control`: `on|off`
+`on`：启用DNS预解析。在浏览器支持DNS预解析的特性时及时不适用该标签浏览器依然会进行预解析。
+`off`：关闭DNS预解析。这个属性在页面上的链接并不是由你控制的或是你根本不想向这些域名引导数据时非常有用。
+
+使用示例：
+
+``` html
+// 打开和关闭DNS预读取
+<meta http-equiv="x-dns-prefetch-control" content="off">
+// 强制查询特定主机名
+<link rel="dns-prefetch" href="//www.baidu.com">
+```
+
+## 浏览器缓存
 
 缓存会根据请求保存输出内容的副本，例如 页面、图片、文件，当下一个请求来到的时候:如果是相同的`URL`，缓存直接使 用本地的副本响应访问请求，而不是向源服务器再次发送请求。因此，可以从以下 2 个方面提升性能。
 
 - 减少相应延迟，提升响应时间
 - 减少网络带宽消耗，节省流量
+
+![store缓存](../images/frontendo/6.jpeg)
+
+### 强缓存
+
+我们先罗列一下和强缓存相关的请求响应头。
+
+- **Expires**:  这是`http1.0`时的规范，它的值为一个绝对时间的GMT格式的时间字符串，如`Mon, 10 Jun 2015 21:31:12 GMT`，如果发送请求的时间在`expires`之前，那么本地缓存始终有效，否则就会发送请求到服务器来获取资源
+- **Cache-Control**: 
+
+    1. **`max-age=number`**：这是`http1.1`时出现的`header`信息，主要是利用该字段的`max-age`值来进行判断，它是一个相对值；资源第一次的请求时间和`Cache-Control`设定的有效期，计算出一个资源过期时间，再拿这个过期时间跟当前的请求时间比较，如果请求时间在过期时间之前，就能命中缓存，否则未命中，
+    2. **no-cache**： 不使用本地缓存。需要使用缓存协商，先与服务器确认返回的响应是否被更改，如果之前的响应中存在 ETag ，那么请求的时候会与服务端验证，如果资源未被更改，则可以避免重新下载。
+    3. **no-store**： 直接禁止游览器缓存数据，每次用户请求该资源，都会向服务器发送一个请求，每次都会下载完整的资源。
+    4. **public**： 可以被所有的用户缓存，包括终端用户和`CDN`等中间代理服务器。
+    5. **private**： 只能被终端用户的浏览器缓存，不允许`CDN`等中继缓存服务器对其缓存。
+
+::: tip 提示
+如果 cache-control 与 expires 同时存在的话，cache-control 的优先级高于 expires
+
+强缓存又分 `memory cache` 和 `disk cache`
+:::
+
+### 协商缓存
+
+商缓存都是由浏览器和服务器协商，来确定是否缓存，协商主要通过下面两组`header`字段，这两组字段都是成对出现的，即第一次请求的响应头带上某个字段 （`Last-Modified`或者`Etag`） ，则后续请求会带上对应的请求字段（`If-Modified-Since`或者`If-None-Match`） ，若响应头没有`Last-Modified`或者`Etag`字段，则请求头也不会有对应的字段。
+
+#### Last-Modified/If-Modified-Since
+
+二者的值都是`GMT`格式的时间字符串，具体过程
+
+- 浏览器第一次跟服务器请求一个资源，服务器在返回这个资源的同时，在`respone`的`header`加上 `Last-Modified`字段，这个`header`字段表示这个资源在服务器上的最后修改时间
+- 浏览器再次跟服务器请求这个资源时，在`request`的`header`上加上`If-Modified-Since`字段，这个`header`字段的值就是上一次请求时返回的`Last-Modified`的值
+- 服务器再次收到资源请求时，根据浏览器传过来`If-Modified-Since`和资源在服务器上的最后修改时间判断资源是否有变化，如果没有变化则返回`304 Not Modified`，但是不会返回资源内容；如果有变化，就正常返回资源内容。当服务器返回`304 Not Modified`的响应时,`response header`中不会再添加`Last-Modified`的`header`，因为既然资源没有变化，那么`Last-Modified`也就不会改变，这是服务器返回`304`时的`response header`
+- 浏览器收到`304`的响应后，就会从缓存中加载资源
+- 如果协商缓存没有命中，浏览器直接从服务器加载资源时,`Last-Modified`的`Header`在重新加载的时候会被更新，下次请求时,`If-Modified-Since`会启用上次返回的Last-Modified值
+
+### Etag/If-None-Match
+
+有些情况下仅判断最后修改日期来验证资源是否有改动是不够的：
+
+- 存在周期性重写某些资源，但资源实际包含的内容并无变化；
+- 被修改的信息并不重要，如注释等；
+- Last-Modified无法精确到毫秒，但有些资源更新频率有时会小于一秒。
+
+为解决这些问题，http允许用户对资源打上标签(ETag)来区分两个相同路径获取的资源内容是否一致。通常会采用MD5等密码散列函数对资源编码得到标签(强验证器)；或者通过版本号等方式，如W/”v1.0”(W/表示弱验证器)。
+
+ETag为相应头部字段，表示资源内容的唯一标识，随服务器response返回；
+If-None-Match为请求头部字段，服务器通过比较请求头部的If-None-Match与当前资源的ETag是否一致来判断资源是否在两次请求之间有过修改，如果没有修改，则命中协商缓存，浏览器从缓存中获取资源；如果有过修改，则服务器返回资源，同时返回新的ETag
+
+::: tip 提示
+协商缓存管理 [Last-Modified , If-Modified-Since]和[ETag , If-None-Match]一般同时启用，这是为了处理Last-Modified不可靠的情况。
+
+所以当`ETag`和`Last-Modified`一起使用时，服务器会优先验证`ETag`，一致的情况下，才会继续比对`Last-Modified`，最后才决定是否返回304。
+:::
+
+所以，我们可以根据实际情况设置强缓存与协商缓存
+
+首次请求未命中强缓存的效果:
+![store1](../images/frontendo/7.png)
+
+再次刷新请求命中强缓存的效果：
+![store1](../images/frontendo/8.png)
+
