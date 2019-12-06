@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0
+        }
+        #box1 {
+            padding: 40px;
+            height: 500px;
+            border: 60px solid #999
+
+        }
+
+        #box2 {
+            height: 200px;
+            border: 60px solid #999;
+            margin: 20px;
+            background: green;
+            padding: 5px;
+            position: relative;
+        }
+
+        #box3 {
+            height: 30px;
+            background: red;
+        }
+    </style>
+</head>
+<body>
+    <div id="box1">
+        <div id="box2">
+            <div id="box3">
+
+            </div>
+        </div>
+    </div>
+    <script>
+        let box2 = document.querySelector('#box2')
+        let box3 = document.querySelector('#box3')
+        console.dir(box2)
+        console.dir(box3)
+    </script>
+</body>
+</html>

@@ -18,35 +18,7 @@ module.exports = {
             })
             .end()
     },
-    // configureWebpack: (config, isServer) => {
-    //     if (!isServer) {
-    //         return {
-    //             module: {
-    //                 rules: [
-    //                     {
-    //                         test: /\.(gif|png|jpe?g|svg)$/i,
-    //                         use: [
-    //                             {
-    //                                 loader: 'file-loader',
-    //                                 options: {
-    //                                     name: '[name].[hash].[ext]',
-    //                                     outputPath: 'assets/img'
-    //                                 }
-    //                             },
-    //                             // {
-    //                             //     loader: 'image-webpack-loader',
-    //                             //     options: {
-    //                             //         bypassOnDebug: true,
-    //                             //     }
-    //                             // }
-    //                         ]
-    //                     },
-    //                 ]
-    //             }
-    //         }
-
-    //     }
-    // },
+    
     markdown: {
         lineNumbers: true
     },
@@ -70,8 +42,23 @@ module.exports = {
                 collapsable: false,
                 children: [
                     '/javascript/eventLoop',
+                    'javascript/frontendOptimization',
+                    'javascript/allPosition.md',
+                ]
+            },
+            {
+                title: '动手实践',
+                collapsable: false,
+                children: [
                     '/javascript/mvvm',
-                    'javascript/frontendOptimization'
+                    '/javascript/imglazy'
+                ]
+            },
+            {
+                title: '搬运好文',
+                collapsable: false,
+                children: [
+                    'frame/vueLazy.md'
                 ]
             },
         ]

@@ -112,6 +112,7 @@ nginx开启GZIP后
 - 静态资源走不同域名
 - 开启http2
 - preload 与 prefetch
+- defer 与 async
 - DNS预解析
 
 ### 静态资源走不同域名
@@ -149,6 +150,10 @@ nginx[升级支持http2](https://www.cnblogs.com/bugutian/p/6628455.html)
 
 ### preload 与 prefetch
 
+当浏览器构建 DOM 的时候，如果在 HTML 中遇到了一个`<script>...</script>`标签，它必须立即执行。如果脚本是来自于外部的，那么它必须首先下载脚本。著作权归作者所有。
+
+在过去，为了执行一个脚本，HTML 的解析必须暂停。只有在 JavaScript 引擎执行完代码之后它才会重新开始解析。
+
 使用Vue的同学应该见过编译后的html源码，类似于这样：
 
 ``` html
@@ -183,6 +188,74 @@ nginx[升级支持http2](https://www.cnblogs.com/bugutian/p/6628455.html)
 > `prefetch`是告诉浏览器页面可能需要的资源，浏览器不一定会加载这些资源
 
 所以，对于当前页面很有必要的资源使用`preload`，对于可能在将来的页面中使用的资源使用`prefetch`, 不这两个在一些低版本还不支持
+
+### defer 与 async
+
+- `<script src="script.js"></script>`
+没有`defer`或`async`，浏览器会立即加载并执行指定的脚本，“立即”指的是在渲染该`script`标签之下的文档元素之前，也就是说不等待后续载入的文档元素，读到就加载并执行。
+- `<script async src="script.js"></script>`
+有`async`，加载和渲染后续文档元素的过程将和`script.js`的加载与执行并行进行（异步）。
+- `<script defer src="myscript.js"></script>`
+有 defer，加载后续文档元素的过程将和 script.js 的加载并行进行（异步），但是 script.js 的执行要在所有元素解析完成之后，DOMContentLoaded 事件触发之前完成。
+
+然后从实用角度来说呢，首先把所有脚本都丢到 `</body>` 之前是最佳实践，因为对于旧浏览器来说这是唯一的优化选择，此法可保证非脚本的其他一切元素能够以最快的速度得到加载和解析。
+
+接着，我们来看一张图咯：蓝色线代表网络读取，红色线代表执行时间，这俩都是针对脚本的；绿色线代表 HTML 解析。
+
+![defer和async](../images/frontendo/9.jpeg)
+
+此图告诉我们以下几个要点：
+
+- `defer`和`async`在网络读取（下载）这块儿是一样的，都是异步的（相较于`HTML`解析）
+- 俩的差别在于脚本下载完之后何时执行，显然`defer`是最接近我们对于应用脚本加载和执行的要求的
+- 关于`defer`，此图未尽之处在于它是按照加载顺序执行脚本的，这一点要善加利用
+- `async`则是一个乱序执行的主，反正对它来说脚本的加载和执行是紧紧挨着的，所以不管你声明的顺序如何，只要它加载完了就会立刻执行
+
+### 综上`preload`、`prefetch`、`async`、`defer`完美结构
+
+``` html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Faster</title>
+  <link rel="dns-prefetch" href="//cdn.cn/">
+
+  <link rel="preload" href="//cdn.cn/webfont.woff2" as="font">
+  <link rel="preload" href="//cdn.cn/Page1-A.js" as="script">
+  <link rel="preload" href="//cdn.cn/Page1-B.js" as="script">
+  
+  <link rel="prefetch" href="//cdn.cn/Page2.js">
+  <link rel="prefetch" href="//cdn.cn/Page3.js">
+  <link rel="prefetch" href="//cdn.cn/Page4.js">
+
+  <style type="text/css">
+    /* 首页用到的CSS内联 */
+  </style>
+</head>
+<body>
+
+<script type="text/javascript" src="//cdn.cn/Page1-A.js" defer></script>
+<script type="text/javascript" src="//cdn.cn/Page1-B.js" defer></script>
+</body>
+</html>
+```
+
+::: tip 解读
+首先，`Parser`在遇到`head`中`preload`时开始下载`JS`，读到`script`标签的时候，如果已经下载完了，直接按顺序执行之。如果没下载完，则会等到下载完再执行。这样就可以在刚进入页面时开始非阻塞的下载JS代码了。
+
+其次，页面会在空闲时，加载`prefetch`的`JS`，如果之后页面发生跳转，跳转的目标页面引入了prefetch.js，浏览器会直接从disk缓存中读取执行。
+
+将script标签依然放在`</body>`之前，并增加defer标签，确保老浏览器兼容，并在所有DOM元素解析完成之后执行其中的代码。
+
+至此，完美的HTML结构出炉了。
+:::
+
+更多内容可以查看：
+
+- [浏览器工作原理](https://www.html5rocks.com/zh/tutorials/internals/howbrowserswork/#Webkit_CSS_parser)
+- [现代浏览器性能优化-CSS篇](https://segmentfault.com/a/1190000012643583)
+- [现代浏览器性能优化-JS篇](https://segmentfault.com/a/1190000011577248)
 
 ### DNS预解析
 
@@ -225,7 +298,7 @@ DNS请求需要的带宽非常小，但是延迟却有点高，这点在手机�
 我们先罗列一下和强缓存相关的请求响应头。
 
 - **Expires**:  这是`http1.0`时的规范，它的值为一个绝对时间的GMT格式的时间字符串，如`Mon, 10 Jun 2015 21:31:12 GMT`，如果发送请求的时间在`expires`之前，那么本地缓存始终有效，否则就会发送请求到服务器来获取资源
-- **Cache-Control**: 
+- **Cache-Control**:
 
     1. **`max-age=number`**：这是`http1.1`时出现的`header`信息，主要是利用该字段的`max-age`值来进行判断，它是一个相对值；资源第一次的请求时间和`Cache-Control`设定的有效期，计算出一个资源过期时间，再拿这个过期时间跟当前的请求时间比较，如果请求时间在过期时间之前，就能命中缓存，否则未命中，
     2. **no-cache**： 不使用本地缓存。需要使用缓存协商，先与服务器确认返回的响应是否被更改，如果之前的响应中存在 ETag ，那么请求的时候会与服务端验证，如果资源未被更改，则可以避免重新下载。
@@ -279,4 +352,3 @@ If-None-Match为请求头部字段，服务器通过比较请求头部的If-None
 
 再次刷新请求命中强缓存的效果：
 ![store1](../images/frontendo/8.png)
-

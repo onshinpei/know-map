@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="./lazy.js" defer></script>
+    <style>
+        .img-box img{
+            min-height: 682px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="img-box">
+            <img data-src="https://bbs.qn.img-space.com/201912/3/61df290aab94469ff4645d10f81fe319.jpg?imageView2/2/w/1024/q/100/ignore-error/1/"
+                alt="" class="lazyload">
+        </div>
+        <div class="img-box">
+            <img data-src="https://bbs.qn.img-space.com/201912/3/fb63652b3c5f17ab9ff589e1e6049044.jpg?imageView2/2/w/1024/q/100/ignore-error/1/"
+                alt="" class="lazyload">
+        </div>
+        <div class="img-box">
+            <img data-src="https://bbs.qn.img-space.com/201912/3/61df290aab94469ff4645d10f81fe319.jpg?imageView2/2/w/1024/q/100/ignore-error/1/"
+                alt="" class="lazyload">
+        </div>
+        <div class="img-box">
+            <img data-src="https://bbs.qn.img-space.com/201912/3/61df290aab94469ff4645d10f81fe319.jpg?imageView2/2/w/1024/q/100/ignore-error/1/"
+                alt="" class="lazyload">
+        </div>
+    </div>
+    <script>
+        window.onload = function () {
+            new LazyLoad()
+        }
+    </script>
+</body>
+
+</html>
