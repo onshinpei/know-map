@@ -6,7 +6,7 @@ module.exports = {
     dest: 'dist',
     base: NODE_ENV === 'production' ? '/docs/' : '/',
     head: [
-        ['link', { rel: 'icon', href: `${NODE_ENV === 'production' ? 'docs': ''}/images/favicon.ico` }],
+        ['link', { rel: 'icon', href: `${NODE_ENV === 'production' ? 'docs' : ''}/images/favicon.ico` }],
     ],
     chainWebpack: config => {
         config.module
@@ -18,21 +18,21 @@ module.exports = {
             })
             .end()
     },
-    
+
     markdown: {
         lineNumbers: true
     },
     themeConfig: {
         nav: [
             { text: '主页', link: '/' },
-            {
-                text: '博文',
-                items: [
-                    { text: 'Android', link: '/android/' },
-                    { text: 'ios', link: '/ios/' },
-                    { text: 'Web', link: '/web/' }
-                ]
-            },
+            // {
+            //     text: '博文',
+            //     items: [
+            //         { text: 'Android', link: '/android/' },
+            //         { text: 'ios', link: '/ios/' },
+            //         { text: 'Web', link: '/web/' }
+            //     ]
+            // },
             { text: '关于', link: '/about/' },
             { text: 'Github', link: 'https://www.github.com/onshinpei/konw-map' },
         ],
@@ -44,6 +44,8 @@ module.exports = {
                     '/javascript/eventLoop',
                     'javascript/frontendOptimization',
                     'javascript/allPosition.md',
+                    'javascript/函数式编程的理解.md',
+                    'javascript/深入理解对象创建.md'
                 ]
             },
             {

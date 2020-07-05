@@ -225,4 +225,4 @@ class LazyLoad {
 </html>
 ```
 
-> [实例代码](https://github.com/onshinpei/know-map/tree/master/example/imglazyload)
+> [示例代码](https://github.com/onshinpei/know-map/tree/master/example/imglazyload)

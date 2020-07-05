@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        var a = {
+            name: '1',
+            getName(a, b) {
+                return this.name + a + b
+            }
+        }
+        var b = {
+            name: '2',
+            getName(a, b) {
+                return this.name + a + b
+            }
+        }
+
+        Function.prototype.mybind = function(context, ...bindArgs) {
+            let func = this
+            context = context || window
+            if (typeof func !== 'function') {
+                throw new Error('bind must be called on a function')
+            }
+            return function (...callArgs) {
+                let args = bindArgs.concat(callArgs)
+                return func.call(context, ...args)
+            }
+        }
+        Function.prototype.mybind2 = function(context, ...bindArgs) {
+            context = context || window
+            context.func = this;
+            if (typeof context.func !== 'function') {
+                throw new TypeError('bind must be called on a function');
+            }
+            return function(...callArgs) {
+                let args = bindArgs.concat(callArgs)
+                let res = context.func(...args);
+                delete context.func;
+                return res
+            }
+        }
+
+        Function.prototype.mycall = function(context, ...callArgs) {
+            context = context || window
+            context.func = this
+            
+            if (typeof context.func !== 'function') {
+                throw new TypeError('call must be called on a function')
+            }
+
+            let res = context.func(...callArgs)
+            delete context.func
+            return res
+        }
+        
+        Function.prototype.myapply = function(context, callArgs) {
+            context = context || window
+            context.func = this
+
+            if (typeof context.func !== 'function') {
+                throw new TypeError('call must be called on a function')
+            }
+
+            let res = context.func(...callArgs)
+            delete context.func
+            return res
+        }
+
+        function pool(checkStatus, callback) {
+            let time = 0;
+            let status = false
+
+         
+        }
+    </script>
+</body>
+</html>

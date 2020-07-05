@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+     * {
+        padding: 0;
+        margin: 0
+    }
+    section {
+        margin-bottom: 10px;
+    }
+    </style>
+</head>
+<body>
+   <section class="layout float">
+        <div class="left">这是左边栏</div>
+        <div class="right">
+            <p>这是右边栏</p>
+        </div>
+        <div class="center">
+            <p>这是中间栏</p>
+            <p>这是中间栏</p>
+            <p>这是中间栏</p>
+            <p>这是中间栏</p>
+        </div>
+        <style>
+            .layout.float div {
+                min-height: 100px;
+            }
+            .layout.float .left {
+                float: left;
+                width: 300px;
+                background: yellow
+            }
+            .layout.float .right {
+                float: right;
+                width: 300px;
+                background: green
+            }
+            .layout.float .center {
+                overflow: auto;
+                background: red;
+            }
+        </style>
+   </section>
+   <section class="layout flex">
+        <div class="left">
+            <p>这是中间栏3423423542524333542444444444444444444444444</p>
+        </div>
+        <div class="center"><p>这是中间栏</p>
+            <p>这是中间栏</p>
+            <p>这是中间栏</p>
+
+        </div>
+        <div class="right"></div>
+        <style>
+            .flex {
+                display: flex;
+            }
+            .flex .center {
+                background: red;
+                flex: 1;
+            }
+            .flex .left {
+                /* height: 100px; */
+                background: yellow;
+                width: 300px;
+            }
+            .flex .right {
+                background: green;
+                width: 300px;
+            }
+        </style>
+   </section>
+
+   <style>
+       .left {
+            background: yellow;
+            width: 300px;
+       }
+       .center {
+            background: red;
+       }
+       .right {
+            background: green;
+            width: 300px;
+       }
+   </style>
+
+   <section class="layout position">
+        <div class="left"></div>
+        <div class="center"></div>
+        <div class="right"></div>
+        <style>
+            .position {
+                position: relative;
+                width: 100%;
+                height: 100px;
+            }
+            .position .left {
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100px;
+            }
+            .position .center {
+                position: absolute;
+                left: 300px;
+                right: 300px;
+                height: 100px;
+            }
+            .position .right {
+                position: absolute;
+                right: 0;
+                top: 0;
+                height: 100px;
+            }
+        </style>
+   </section>
+   <section class="layout table">
+       <div class="left"></div>
+       <div class="center"></div>
+       <div class="right"></div>
+       <style>
+       .table {
+           width: 100%;
+           display: table;
+       }
+       .table > div {
+           display: table-cell;
+       }
+       .table .left {
+           height: 100px;
+       }
+       </style>
+   </section>
+</body>
+</html>

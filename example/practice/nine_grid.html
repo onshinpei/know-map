@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0
+        }
+
+        .layout.box-shoadow {
+            background: #999;
+            overflow: auto;
+            width: 640px;
+            height: 640px;
+        }
+
+        .box-shoadow .item {
+            margin-left: 10px;
+            margin-top: 10px;
+            width: 200px;
+            height: 200px;
+            background: #fff;
+            float: left
+        }
+
+        .box-shoadow .item:hover {
+            box-shadow: 0 0 0 10px red;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- <div class="layout box-shoadow">
+        <div class="item"></div>
+        <div class="item"></div>
+        <div class="item"></div>
+        <div class="item"></div>
+        <div class="item"></div>
+        <div class="item"></div>
+        <div class="item"></div>
+        <div class="item"></div>
+        <div class="item"></div>
+    </div> -->
+    <style>
+        .table {
+            display: table;
+            width: 640px;
+            height: 640px;
+            background-color: #999;
+            border-collapse: collapse;
+        }
+        .table .tr {
+            display: table-row
+        }
+        .table .td {
+            display: table-cell;
+            background: #fff;
+            border: 5px solid #999;
+        }
+        .table .td:hover {
+            border: 5px solid red;
+            z-index: 5;
+        }
+    </style>
+    <div class="table">
+        <div class="tr">
+            <div class="td"></div>
+            <div class="td"></div>
+            <div class="td"></div>
+        </div>
+        <div class="tr">
+            <div class="td"></div>
+            <div class="td"></div>
+            <div class="td"></div>
+        </div>
+        <div class="tr">
+            <div class="td"></div>
+            <div class="td"></div>
+            <div class="td"></div>
+        </div>
+    </div>
+
+</body>
+
+</html>
